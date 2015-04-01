@@ -1,0 +1,31 @@
+# Introduction #
+
+The following is a short list of the various major project components and their respective status.
+This list is not all encompassing, rather, it provides a somewhat clear direction of what major project tasks are ongoing.
+
+# In Progress #
+  * **ISA Definition** : ~~Initial instruction set format definition is complete.  This includes local and global memory model.  There may be a few instruction additions in the near future.  The current instruction tables are in the simulator source directory~~ 10/21/14: We have the basic definition of the ISA done as a RISC-V extension.  We're now closing on the format specification.
+  * **ABI Definition** : ~~The ABI definition is an ongoing project.  The major issue at hand is understanding the relationship between node-local pages and globally addressable page structures.~~ Done.  We use the RISC-V ABI with a simple object file extension for the scratchpad memory
+  * **Arch Specs Doc** : ~~Ongoing and coming up well: https://code.google.com/p/goblin-core/source/browse/trunk/doc/goblin-core_arch_specs.docx~~ Deprecated: New document forthcoming
+  * **Initial Simulator Model** : The initial code compiles and links.  The base simulator is a static library object such that it can be embedded in other applications or simulation objects.  See the simulator source tree.
+  * **Binutils** : current binutils support is provided by GNU binutils 2.23.2.  Note: Binutils references Goblin-Core as "gc64".  This will be consistent across other tools as well.  I've added the necessary BFD, GAS, et.al files, but I have yet to complete the code necessary to have a working binutils toolkit.  This will be an ongoing effort as I finalize the ABI.
+  * **HMC Simulator** : The Hybrid Memory Cube [HMC](HMC.md) simulator library is being developed alongside GC64 in order allow us to do novel research of virtual-to-physical memory translation techniques, relocatable VM layer techniques, bandwidth/latency characterization and HMC topologies.  This library is meant to stand separate in the event that others find it useful.
+  * **Addressing** : Added physical address format [PhysicalMemoryFormat](PhysicalMemoryFormat.md).  Working on virtual address format and virtual to physical translation.
+  * **Documentation** : HMC-Sim API documentation has been posted.  See the [Documentation](Documentation.md) page.
+  * **Memory Interface Simulator** : The MEMSim or memory interface simulation library is being developed in order to explore various options and algorithms associated with coalescing memory requests at the various memory request boundaries in order to make better use of the available HMC bandwidth.
+  * **RISC-V Simulator** : Initial port of RISC-V now has scratchpad memory support.  Adding additional instructions as soon as we close on the preferred format.
+  * **LLVM** : Currently porting LLVM 3.3-RISC-V modifications up to LLVM 3.5~~
+
+# In Planning #
+  * **Compiler/Optimizer** : Given its deliberate ability to port to new targets, I've chosen LLVM as our candidate compiler+optimizer suite.  I hope to work with Preston Briggs from UWash on his efforts to build Tera MTA-C style parallelization optimizations into LLVM.  More info on this can be found here: https://sites.google.com/site/parallelizationforllvm/loop-transforms
+  * **Task Switching Model** : As a part of the overall simulation phase, one of the key modules that I plan to research is the exact task/thread context switch model.  I have some ideas on how this might maintain a very efficient [~1 cycle] context switch latency while not sacrificing instruction bandwidth.  I want this to be both flexible with respect to the executing algorithm as well as powerful for those doing heavy micro-optimizations.  Much of the simulated research will fall in this area.
+  * **Hardware Accelerated Barriers** : One of the key operations that we identify as being a candidate for hardware optimization is the barrier synchronization.  We're exploring several different options to perform optimized software barriers using special hardware techniques.
+  * **Address Space//Task Security** : One issue we would like to address is the ability to tag each task and group of tasks with specific "keys."  These keys would provide security domains such that the larger system has the ability to operate with multiple users/applications without fear of poisoning other memory spaces.
+  * **HDL Development** : I plan to utilize the Berkeley Chisel project as a design tool for the HDL development.  It provides a very friendly Scala interface to doing HDL development and debugging from a high level language construct.  I also hope to utilize their C++ model as an intermediate, cycle-accurate software model for Goblin-Core.  More info can be found here: http://chisel.eecs.berkeley.edu/
+  * **System Management Controller/Library** : We're looking at various methods by which we can decouple compute and management resources.  This would require abstracting the handlers for job startup, debugging, I/O, memory management and other general purpose OS duties.
+
+# Not Yet Attempted #
+  * **Debugger** : ~~I've wavering on whether to port GDB or LLDB.  There are certainly more people familiar with GDB, but the code base is more difficult to work in than LLDB.~~ Solved:  We're going to support the LLDB debugger.  I'd like to stay closer to the LLVM tool chain as much as possible.
+  * **Performance Optimization Tools** : I have yet to generate a plan for performance optimization tools
+  * **Kernel Modifications** : ~~Goblin-Core is designed to operate as a core processor and boot an operating system.  However, I have yet to determine what kernel modifications may or may not be necessary.  I have done some reading on low-jitter Linux-derived OS models from the likes of Sandia and Argonne.  Both are interesting candidates.  The biggest concern is providing a fast, global memory allocation schema.~~ We will utilize the RISC-V kernel port
+  * **Development Board** : ~~I have yet to work through the process of identifying a candidate development board for the purposes of prototyping.  There are a plethora of known good dev platforms, but cost is always a factor.~~ The current plan is to utilize the Zynq Zybo board here: http://www.digilentinc.com/Products/Detail.cfm?NavPath=2,400,1198&Prod=ZYBO
